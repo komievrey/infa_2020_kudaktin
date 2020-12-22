@@ -10,8 +10,8 @@ bg = pygame.image.load(r'background.jpg')
 erythrocytes = [pygame.image.load(r'sprites/erythrocyte1.png'), pygame.image.load(r'sprites/erythrocyte2.png'),
                 pygame.image.load(r'sprites/erythrocyte3.png'), pygame.image.load(r'sprites/erythrocyte4.png')]
 green_virus = [pygame.image.load(r'sprites/green_virus1.png'), pygame.image.load(r'sprites/green_virus2.png')]
-pink_virus = pygame.image.load(r'sprites/pink_virus.png')
-black_virus = pygame.image.load(r'sprites/black_virus.png')
+pink_virus = pygame.image.load(r'sprites/pink_virus2.png')
+black_virus = pygame.image.load(r'sprites/black_virus1.png')
 virus_boss = pygame.image.load(r'sprites/boss_virus.png')
 
 # Звуки
@@ -26,19 +26,11 @@ hit_virus = pygame.mixer.Sound(r'sounds/hit_virus.mp3')
 # Настройки игры при входе
 display_width = 1920
 display_height = 1080
-display = pygame.display.set_mode((display_width, display_height), pygame.FULLSCREEN)
+display = pygame.display.set_mode((display_width, display_height), pygame.RESIZABLE, pygame.FULLSCREEN)
 pygame.display.set_caption('Hit this virus!')
 logo = pygame.image.load(r'logo.png')
 pygame.display.set_icon(logo)
 language = []
-
-
-# Игровая механика
-score = 0
-x_spawn = 0
-y_spawn = 0
-random_scale = 500
-A = 0
 
 clock = pygame.time.Clock()
 
@@ -52,19 +44,24 @@ class Button:
         self.active_color = (23, 189, 122)
 
     def draw(self, x, y, message=None, action=None, font_size=30):
+        show = True
         mouse = pygame.mouse.get_pos()
-        click = pygame.mouse.get_pressed()
-
-        if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height:
-            pygame.draw.rect(display, self.active_color, (x, y, self.width, self.height))
-
-            if click[0] == 1 and action is not None:
-                pygame.mixer.Sound.play(click_on_button)
-                pygame.time.delay(300)
-                action()
-
-        else:
-            pygame.draw.rect(display, self.inactive_color, (x, y, self.width, self.height))
+        while show:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height:
+                    pygame.draw.rect(display, self.active_color, (x, y, self.width, self.height))
+                    show = False
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if event.button == 1 and action is not None:
+                            pygame.mixer.Sound.play(click_on_button)
+                            action()
+                else:
+                    pygame.draw.rect(display, self.inactive_color, (x, y, self.width, self.height))
+                pygame.display.update()
+                clock.tick(60)
 
         print_text(message=message, x=x, y=y-30, font_size=font_size)
 
@@ -153,34 +150,19 @@ def change_sounds():
 
 # Спавн вирусов
 def new_virus():
-    global x_spawn, y_spawn, random_scale, A
+    global x_spawn, y_spawn
     x_spawn = randint(100, display_width - 500)
     y_spawn = randint(100, display_height - 500)
     random_scale = randint(200, 400)
-    A = 100 * (random_scale / 500)
-    pink_virus_scaled = pygame.transform.scale(pink_virus, (random_scale, random_scale))
-    black_virus_scaled = pygame.transform.scale(black_virus, (random_scale, random_scale))
     green_virus_scaled = [green_virus[0], green_virus[1]]
     green_virus_scaled[0] = pygame.transform.scale(green_virus[0], (random_scale, random_scale))
     green_virus_scaled[1] = pygame.transform.scale(green_virus[1], (random_scale, random_scale))
-#    pygame.draw.rect(display, (255, 0, 0), (x_spawn + A, y_spawn + A, random_scale - A*1.7, random_scale - A*1.7), 0)
-    c = randint(-10, 3)
-    if c > 0:
-        display.blit(pink_virus_scaled, (x_spawn, y_spawn))
-    elif c == 0:
-        display.blit(black_virus_scaled, (x_spawn, y_spawn))
-    else:
-        display.blit(green_virus_scaled[randint(0, 1)], (x_spawn, y_spawn))
+    display.blit(green_virus_scaled[randint(0, 1)], (x_spawn, y_spawn))
+    pygame.time.delay(300)
 
 
 def hit():
-    global score
-    mouse = pygame.mouse.get_pos()
-    if x_spawn + A < mouse[0] < x_spawn + A + random_scale - A*1.7 and y_spawn + A < mouse[1] < y_spawn + A + random_scale - A*1.7:
-        pygame.mixer.Sound.play(hit_virus)
-        display.blit(bg, (0, 0))
-        new_virus()
-        score += 1
+    pygame.mixer.Sound.play(hit_virus)
 
 
 # Функция для запуска основного цикла
@@ -191,10 +173,9 @@ def start_game():
 
 # Основной цикл игры
 def game_cycle():
-    global music_count, score
+    global music_count
     running = True
     music_count = 0
-    score = 0
     display.blit(bg, (0, 0))
     pygame.mixer.music.load('sounds/main_theme.mp3')
 
@@ -212,7 +193,6 @@ def game_cycle():
                 if event.key == pygame.K_ESCAPE:
                     show_menu()
 
-        print_text('Score:' + str(score), 1550, 20, font_color=(255, 255, 255), font_size=70)
         pygame.display.update()
         clock.tick(60)
 
