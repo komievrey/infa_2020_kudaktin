@@ -30,6 +30,8 @@ display = pygame.display.set_mode((display_width, display_height), pygame.FULLSC
 pygame.display.set_caption('Hit this virus!')
 logo = pygame.image.load(r'logo.png')
 pygame.display.set_icon(logo)
+resolution = "1920x1080"
+R = 1
 language = []
 
 
@@ -56,7 +58,7 @@ class Button:
         click = pygame.mouse.get_pressed()
 
         if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height:
-            pygame.draw.rect(display, self.active_color, (x, y, self.width, self.height))
+            pygame.draw.rect(display, self.active_color, (x, y, int(self.width / R), int(self.height / R)))
 
             if click[0] == 1 and action is not None:
                 pygame.mixer.Sound.play(click_on_button)
@@ -64,14 +66,14 @@ class Button:
                 action()
 
         else:
-            pygame.draw.rect(display, self.inactive_color, (x, y, self.width, self.height))
+            pygame.draw.rect(display, self.inactive_color, (x, y, int(self.width / R), int(self.height / R)))
 
-        print_text(message=message, x=x, y=y-30, font_size=font_size)
+        print_text(message=message, x=x, y=y-int(30 / R), font_size=font_size)
 
 
 # Функция для печати текста
-def print_text(message, x, y, font_color=(0, 0, 0), font_type=r'fonts/comicbd.ttf', font_size=30):
-    font_type = pygame.font.Font(font_type, font_size)
+def print_text(message, x, y, font_color=(0, 0, 0), font_type=r'fonts/comicbd.ttf', font_size=int(30 / R)):
+    font_type = pygame.font.Font(font_type, int(font_size / R))
     text = font_type.render(message, True, font_color)
     display.blit(text, (x, y))
 
@@ -103,7 +105,7 @@ def show_menu():
 
 # Настройки игры
 def settings_game():
-    global music_count
+    global music_count, resolution
     music_count = 1
     show = True
     esc_button = Button(175, 80)
@@ -121,21 +123,42 @@ def settings_game():
                     show_menu()
 
         display.blit(menu_background, (0, 0))
-        print_text('Settings', (display_width / 2) - 310, 80, font_size=150)
+        print_text('Settings', (display_width / 2.95), (display_height / 13.5), font_size=150)
 
-        print_text('Screen', (display_width / 2) - 450, 400, font_size=90)
-        screen_button.draw((display_width / 2), 435, '1920x1080', show_menu, 80)
+        print_text('Screen', (display_width / 3.76), (display_height / 2.8), font_size=90)
+        screen_button.draw((display_width / 2), (display_height / 2.49), resolution, change_resolution, 80)
 
-        print_text('Music', (display_width / 2) - 450, 550, font_size=90)
-        volume_button.draw((display_width / 2), 585, v_text[0], change_sounds, 80)
+        print_text('Music', (display_width / 3.76), (display_height / 2), font_size=90)
+        volume_button.draw((display_width / 2), (display_height / 1.85), v_text[0], change_sounds, 80)
 
-        print_text('Language', (display_width / 2) - 450, 700, font_size=90)
-        language_button.draw((display_width / 2), 735, 'English', show_menu, 80)
+        print_text('Language', (display_width / 3.76), (display_height / 1.55), font_size=90)
+        language_button.draw((display_width / 2), (display_height / 1.46), 'English', show_menu, 80)
 
-        esc_button.draw(50, 50, 'ESC', show_menu, 90)
+        esc_button.draw((display_width / 38.4), (display_height / 21.6), 'ESC', show_menu, 90)
 
         pygame.display.update()
         clock.tick(60)
+
+
+# Изменение разрешения
+def change_resolution():
+    global display_width, display_height, resolution, display, bg, menu_background, R
+    if resolution == "1920x1080":
+        display_width = int(display_width / 1.5)
+        display_height = int(display_height / 1.5)
+        R = 1.5
+        bg = pygame.transform.scale(bg, (1280, 720))
+        menu_background = pygame.transform.scale(menu_background, (1280, 720))
+        display = pygame.display.set_mode((display_width, display_height), pygame.FULLSCREEN)
+        resolution = "1280x720"
+    else:
+        display_width = int(display_width * 1.5)
+        display_height = int(display_height * 1.5)
+        R = 1
+        bg = pygame.transform.scale(bg, (1920, 1080))
+        menu_background = pygame.transform.scale(menu_background, (1920, 1080))
+        display = pygame.display.set_mode((display_width, display_height), pygame.FULLSCREEN)
+        resolution = "1920x1080"
 
 
 # Изменение звука
@@ -151,19 +174,23 @@ def change_sounds():
         v_text[1], v_text[0] = v_text[0], v_text[1]
 
 
+#
+def translation():
+    global language
+
+
 # Спавн вирусов
 def new_virus():
     global x_spawn, y_spawn, random_scale, A
     x_spawn = randint(100, display_width - 500)
     y_spawn = randint(100, display_height - 500)
-    random_scale = randint(200, 400)
+    random_scale = int(randint(200, 400) / R)
     A = 100 * (random_scale / 500)
-    pink_virus_scaled = pygame.transform.scale(pink_virus, (random_scale, random_scale))
-    black_virus_scaled = pygame.transform.scale(black_virus, (random_scale, random_scale))
+    pink_virus_scaled = pygame.transform.smoothscale(pink_virus, (random_scale, random_scale))
+    black_virus_scaled = pygame.transform.smoothscale(black_virus, (random_scale, random_scale))
     green_virus_scaled = [green_virus[0], green_virus[1]]
-    green_virus_scaled[0] = pygame.transform.scale(green_virus[0], (random_scale, random_scale))
-    green_virus_scaled[1] = pygame.transform.scale(green_virus[1], (random_scale, random_scale))
-#    pygame.draw.rect(display, (255, 0, 0), (x_spawn + A, y_spawn + A, random_scale - A*1.7, random_scale - A*1.7), 0)
+    green_virus_scaled[0] = pygame.transform.smoothscale(green_virus[0], (random_scale, random_scale))
+    green_virus_scaled[1] = pygame.transform.smoothscale(green_virus[1], (random_scale, random_scale))
     c = randint(-10, 3)
     if c > 0:
         display.blit(pink_virus_scaled, (x_spawn, y_spawn))
@@ -197,6 +224,7 @@ def game_cycle():
     score = 0
     display.blit(bg, (0, 0))
     pygame.mixer.music.load('sounds/main_theme.mp3')
+    new_virus()
 
     while running:
         for event in pygame.event.get():
@@ -207,12 +235,10 @@ def game_cycle():
                 if event.button == 1:
                     hit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    new_virus()
                 if event.key == pygame.K_ESCAPE:
                     show_menu()
 
-        print_text('Score:' + str(score), 1550, 20, font_color=(255, 255, 255), font_size=70)
+        print_text('Score:' + str(score), (display_width / 1.23), (display_height / 54), font_color=(255, 255, 255), font_size=70)
         pygame.display.update()
         clock.tick(60)
 
