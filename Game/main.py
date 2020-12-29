@@ -34,10 +34,8 @@ pygame.display.set_icon(logo)
 resolution = "1920x1080"
 R = 1
 stringLang = 0
-language = []
 langOut = open('language.txt', 'r')
-stringLang = langOut.read()
-language = re.split(r'[\n=]', stringLang)
+language = re.split(r'[\n=]', langOut.read())
 
 
 # Игровая механика
@@ -149,9 +147,9 @@ def settings_game():
 def change_resolution():
     global display_width, display_height, resolution, display, bg, menu_background, R
     if resolution == "1920x1080":
-        display_width = int(display_width / 1.5)
-        display_height = int(display_height / 1.5)
         R = 1.5
+        display_width = int(display_width / R)
+        display_height = int(display_height / R)
         bg = pygame.transform.scale(bg, (1280, 720))
         menu_background = pygame.transform.scale(menu_background, (1280, 720))
         display = pygame.display.set_mode((display_width, display_height), pygame.FULLSCREEN)
@@ -181,8 +179,11 @@ def change_sounds():
 
 # Изменение языка
 def translation():
-    global language
-    v_text[1], v_text[0] = language[13], language[15]
+    global language, volume
+    if volume == 1:
+        v_text[0], v_text[1] = language[13], language[15]
+    else:
+        v_text[0], v_text[1] = language[15], language[13]
     for i in range(0, len(language) - 1, 2):
         language[i], language[i + 1] = language[i + 1], language[i]
 
@@ -208,6 +209,7 @@ def new_virus():
         display.blit(green_virus_scaled[randint(0, 1)], (x_spawn, y_spawn))
 
 
+# Удар по вирусу
 def hit():
     global score
     mouse = pygame.mouse.get_pos()
