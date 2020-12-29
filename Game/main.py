@@ -1,4 +1,5 @@
 import pygame
+import re
 from random import randint
 
 pygame.init()
@@ -32,7 +33,11 @@ logo = pygame.image.load(r'logo.png')
 pygame.display.set_icon(logo)
 resolution = "1920x1080"
 R = 1
+stringLang = 0
 language = []
+langOut = open('language.txt', 'r')
+stringLang = langOut.read()
+language = re.split(r'[\n=]', stringLang)
 
 
 # Игровая механика
@@ -96,9 +101,9 @@ def show_menu():
 
         display.blit(menu_background, (0, 0))
         display.blit(name_game, (30, 30))
-        start_button.draw((display_width / 2) - (start_button.width / 2), (display_height / 3), 'Start', start_game, 90)
-        settings_button.draw((display_width / 2) - (start_button.width / 2), (display_height / 2.25), 'Settings', settings_game, 90)
-        quit_button.draw((display_width / 2) - (start_button.width / 2), (display_height / 1.8), 'Quit', quit, 90)
+        start_button.draw((display_width / 2) - (start_button.width / 2), (display_height / 3), language[0], start_game, 90)
+        settings_button.draw((display_width / 2) - (start_button.width / 2), (display_height / 2.25), language[2], settings_game, 90)
+        quit_button.draw((display_width / 2) - (start_button.width / 2), (display_height / 1.8), language[4], quit, 90)
         pygame.display.update()
         clock.tick(60)
 
@@ -123,16 +128,16 @@ def settings_game():
                     show_menu()
 
         display.blit(menu_background, (0, 0))
-        print_text('Settings', (display_width / 2.95), (display_height / 13.5), font_size=150)
+        print_text(language[2], (display_width / 2.95), (display_height / 13.5), font_size=150)
 
-        print_text('Screen', (display_width / 3.76), (display_height / 2.8), font_size=90)
+        print_text(language[6], (display_width / 3.76), (display_height / 2.8), font_size=90)
         screen_button.draw((display_width / 2), (display_height / 2.49), resolution, change_resolution, 80)
 
-        print_text('Music', (display_width / 3.76), (display_height / 2), font_size=90)
+        print_text(language[8], (display_width / 3.76), (display_height / 2), font_size=90)
         volume_button.draw((display_width / 2), (display_height / 1.85), v_text[0], change_sounds, 80)
 
-        print_text('Language', (display_width / 3.76), (display_height / 1.55), font_size=90)
-        language_button.draw((display_width / 2), (display_height / 1.46), 'English', show_menu, 80)
+        print_text(language[10], (display_width / 3.76), (display_height / 1.55), font_size=90)
+        language_button.draw((display_width / 2), (display_height / 1.46), language[16], translation, 80)
 
         esc_button.draw((display_width / 38.4), (display_height / 21.6), 'ESC', show_menu, 90)
 
@@ -174,9 +179,12 @@ def change_sounds():
         v_text[1], v_text[0] = v_text[0], v_text[1]
 
 
-#
+# Изменение языка
 def translation():
     global language
+    v_text[1], v_text[0] = language[13], language[15]
+    for i in range(0, len(language) - 1, 2):
+        language[i], language[i + 1] = language[i + 1], language[i]
 
 
 # Спавн вирусов
@@ -238,7 +246,7 @@ def game_cycle():
                 if event.key == pygame.K_ESCAPE:
                     show_menu()
 
-        print_text('Score:' + str(score), (display_width / 1.23), (display_height / 54), font_color=(255, 255, 255), font_size=70)
+        print_text((language[18] + ': ') + str(score), (display_width / 1.23), (display_height / 54), font_color=(255, 255, 255), font_size=70)
         pygame.display.update()
         clock.tick(60)
 
