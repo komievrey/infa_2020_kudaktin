@@ -40,11 +40,11 @@ language = re.split(r'[\n=]', langOut.read())
 
 # Игровая механика
 score = 0
-x_spawn = 0
-y_spawn = 0
-random_scale = 500
-A = 0
-
+com = 0
+colony = []
+random_scale = 0
+spawn_cordX = []
+spawn_cordY = []
 clock = pygame.time.Clock()
 
 
@@ -72,6 +72,36 @@ class Button:
             pygame.draw.rect(display, self.inactive_color, (x, y, int(self.width / R), int(self.height / R)))
 
         print_text(message=message, x=x, y=y-int(30 / R), font_size=font_size)
+
+
+class Virus:
+    def __init__(self, X, Y, scale):
+        self.X = X
+        self.Y = Y
+        self.scale = scale
+        self.pink_virus_scaled = pygame.transform.smoothscale(pink_virus, (self.scale, self.scale))
+        self.black_virus_scaled = pygame.transform.smoothscale(black_virus, (self.scale, self.scale))
+        self.green_virus_scaled = [green_virus[0], green_virus[1]]
+        self.green_virus_scaled[0] = pygame.transform.smoothscale(green_virus[0], (self.scale, self.scale))
+        self.green_virus_scaled[1] = pygame.transform.smoothscale(green_virus[1], (self.scale, self.scale))
+
+    def get_x(self):
+        return self.X
+
+    def get_y(self):
+        return self.Y
+
+    def get_scale(self):
+        return self.scale
+
+    def spawn(self):
+        c = randint(-10, 3)
+        if c > 0:
+            display.blit(self.pink_virus_scaled, (self.X, self.Y))
+        elif c == 0:
+            display.blit(self.black_virus_scaled, (self.X, self.Y))
+        else:
+            display.blit(self.green_virus_scaled[randint(0, 1)], (self.X, self.Y))
 
 
 # Функция для печати текста
@@ -187,7 +217,7 @@ def translation():
     for i in range(0, len(language) - 1, 2):
         language[i], language[i + 1] = language[i + 1], language[i]
 
-
+'''
 # Спавн вирусов
 def new_virus():
     global x_spawn, y_spawn, random_scale, A
@@ -207,17 +237,35 @@ def new_virus():
         display.blit(black_virus_scaled, (x_spawn, y_spawn))
     else:
         display.blit(green_virus_scaled[randint(0, 1)], (x_spawn, y_spawn))
+'''
+
+
+def rino():
+    for i in range(3):
+        random_scale = randint(200, 400)
+        x_spawn = randint(100, 1620)
+        y_spawn = randint(100, 780)
+        colony.append(Virus(x_spawn, y_spawn, random_scale))
 
 
 # Удар по вирусу
 def hit():
     global score
-    mouse = pygame.mouse.get_pos()
-    if x_spawn + A < mouse[0] < x_spawn + A + random_scale - A*1.7 and y_spawn + A < mouse[1] < y_spawn + A + random_scale - A*1.7:
-        pygame.mixer.Sound.play(hit_virus)
-        display.blit(bg, (0, 0))
-        new_virus()
-        score += 1
+    for i in range(len(colony)):
+        mouse = pygame.mouse.get_pos()
+
+        if colony[i].get_x() < mouse[0] < colony[i].get_x() + colony[i].get_scale() and \
+                colony[i].get_y() < mouse[1] < colony[i].get_y() + colony[i].get_scale():
+            pygame.mixer.Sound.play(hit_virus)
+            display.blit(bg, (0, 0))
+            colony.remove(colony[i])
+            random_scale = randint(200, 400)
+            x_spawn = randint(100, 1620)
+            y_spawn = randint(100, 780)
+            colony.append(Virus(x_spawn, y_spawn, random_scale))
+            for virus in colony:
+                virus.spawn()
+            score += 1
 
 
 # Функция для запуска основного цикла
@@ -234,8 +282,9 @@ def game_cycle():
     score = 0
     display.blit(bg, (0, 0))
     pygame.mixer.music.load('sounds/main_theme.mp3')
-    new_virus()
-
+    rino()
+    for v in colony:
+        v.spawn()
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -246,6 +295,7 @@ def game_cycle():
                     hit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    colony.clear()
                     show_menu()
 
         print_text((language[18] + ': ') + str(score), (display_width / 1.23), (display_height / 54), font_color=(255, 255, 255), font_size=70)
