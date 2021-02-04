@@ -1,0 +1,12 @@
+﻿Alex=10
+Boris=12
+Demid=19
+Daniil=47
+Arcasha=7
+Putin=21
+Trump=23
+Xolil=78
+Ded=27
+Сладкоежка=100
+Poe=13
+NaGiBaToR=17
