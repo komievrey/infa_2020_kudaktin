@@ -83,6 +83,7 @@ else:
     v_text[0], v_text[1] = language[14], language[12]
 
 # Игровая механика
+<<<<<<< HEAD
 total_score = 0
 com = 0
 colony = []
@@ -90,6 +91,14 @@ bonus = []
 spawn_cordX = []
 spawn_cordY = []
 effect = 0
+=======
+score = 0
+com = 0
+colony = []
+random_scale = 0
+spawn_cordX = []
+spawn_cordY = []
+>>>>>>> a6fcb3823e17d6c1dfd179de9d0f7885775c403d
 clock = pygame.time.Clock()
 ticks = clock.get_fps()
 
@@ -171,6 +180,36 @@ class Virus:
     def special(self):
         if self.spec_effect == 10:
             give_effect()
+
+
+class Virus:
+    def __init__(self, X, Y, scale):
+        self.X = X
+        self.Y = Y
+        self.scale = scale
+        self.pink_virus_scaled = pygame.transform.smoothscale(pink_virus, (self.scale, self.scale))
+        self.black_virus_scaled = pygame.transform.smoothscale(black_virus, (self.scale, self.scale))
+        self.green_virus_scaled = [green_virus[0], green_virus[1]]
+        self.green_virus_scaled[0] = pygame.transform.smoothscale(green_virus[0], (self.scale, self.scale))
+        self.green_virus_scaled[1] = pygame.transform.smoothscale(green_virus[1], (self.scale, self.scale))
+
+    def get_x(self):
+        return self.X
+
+    def get_y(self):
+        return self.Y
+
+    def get_scale(self):
+        return self.scale
+
+    def spawn(self):
+        c = randint(-10, 3)
+        if c > 0:
+            display.blit(self.pink_virus_scaled, (self.X, self.Y))
+        elif c == 0:
+            display.blit(self.black_virus_scaled, (self.X, self.Y))
+        else:
+            display.blit(self.green_virus_scaled[randint(0, 1)], (self.X, self.Y))
 
 
 # Функция для печати текста
@@ -366,6 +405,7 @@ def translation():
         v_text[0], v_text[1] = language[15], language[13]
     for i in range(0, len(language) - 1, 2):
         language[i], language[i + 1] = language[i + 1], language[i]
+<<<<<<< HEAD
     if language_c == 0:
         start_change[5] = "1"
         language_c = 1
@@ -416,10 +456,43 @@ def start_to_spawn():
         bonus.append(Virus(x_spawn, y_spawn, scale=150, color=shield_scaled, speed=0, score=0, spec_effect=10))
     elif rand_bonus == 0 and len(bonus) == 1:
         bonus.pop()
+=======
+
+'''
+# Спавн вирусов
+def new_virus():
+    global x_spawn, y_spawn, random_scale, A
+    x_spawn = randint(100, display_width - 500)
+    y_spawn = randint(100, display_height - 500)
+    random_scale = int(randint(200, 400) / R)
+    A = 100 * (random_scale / 500)
+    pink_virus_scaled = pygame.transform.smoothscale(pink_virus, (random_scale, random_scale))
+    black_virus_scaled = pygame.transform.smoothscale(black_virus, (random_scale, random_scale))
+    green_virus_scaled = [green_virus[0], green_virus[1]]
+    green_virus_scaled[0] = pygame.transform.smoothscale(green_virus[0], (random_scale, random_scale))
+    green_virus_scaled[1] = pygame.transform.smoothscale(green_virus[1], (random_scale, random_scale))
+    c = randint(-10, 3)
+    if c > 0:
+        display.blit(pink_virus_scaled, (x_spawn, y_spawn))
+    elif c == 0:
+        display.blit(black_virus_scaled, (x_spawn, y_spawn))
+    else:
+        display.blit(green_virus_scaled[randint(0, 1)], (x_spawn, y_spawn))
+'''
+
+
+def rino():
+    for i in range(3):
+        random_scale = randint(200, 400)
+        x_spawn = randint(100, 1620)
+        y_spawn = randint(100, 780)
+        colony.append(Virus(x_spawn, y_spawn, random_scale))
+>>>>>>> a6fcb3823e17d6c1dfd179de9d0f7885775c403d
 
 
 # Удар по вирусу
 def hit():
+<<<<<<< HEAD
     global total_score
     for i in range(len(colony)):
         mouse = pygame.mouse.get_pos()
@@ -451,6 +524,24 @@ def hit():
 def give_effect():
     global effect
     effect = 1
+=======
+    global score
+    for i in range(len(colony)):
+        mouse = pygame.mouse.get_pos()
+
+        if colony[i].get_x() < mouse[0] < colony[i].get_x() + colony[i].get_scale() and \
+                colony[i].get_y() < mouse[1] < colony[i].get_y() + colony[i].get_scale():
+            pygame.mixer.Sound.play(hit_virus)
+            display.blit(bg, (0, 0))
+            colony.remove(colony[i])
+            random_scale = randint(200, 400)
+            x_spawn = randint(100, 1620)
+            y_spawn = randint(100, 780)
+            colony.append(Virus(x_spawn, y_spawn, random_scale))
+            for virus in colony:
+                virus.spawn()
+            score += 1
+>>>>>>> a6fcb3823e17d6c1dfd179de9d0f7885775c403d
 
 
 # Функция для запуска основного цикла
@@ -542,7 +633,13 @@ def game_cycle():
     total_score = 0
     display.blit(bg, (0, 0))
     pygame.mixer.music.load('sounds/main_theme.mp3')
+<<<<<<< HEAD
     start_to_spawn()
+=======
+    rino()
+    for v in colony:
+        v.spawn()
+>>>>>>> a6fcb3823e17d6c1dfd179de9d0f7885775c403d
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -554,7 +651,10 @@ def game_cycle():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     colony.clear()
+<<<<<<< HEAD
                     bonus.clear()
+=======
+>>>>>>> a6fcb3823e17d6c1dfd179de9d0f7885775c403d
                     show_menu()
 
         for virus in colony:
