@@ -6,6 +6,7 @@ import tkinter
 
 # from moviepy.editor import *
 
+тут есть игра
 
 pygame.init()
 
